@@ -3,13 +3,12 @@ package main
 import (
 	"context"
 	"embed"
-	"tapi/desktop/hub"
-	"tapi/desktop/service"
-	"tapi/desktop/service/store"
-
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
+	"tapi/desktop/hub"
+	"tapi/desktop/logger"
+	"tapi/desktop/service"
 )
 
 //go:embed all:frontend/dist
@@ -18,7 +17,7 @@ var assets embed.FS
 func main() {
 	// Create an instance of the app structure
 	system := service.System()
-	store := store.Store()
+	store := service.Store()
 	collection := service.Collection()
 	environment := service.Environment()
 	group := hub.Group()
@@ -36,6 +35,9 @@ func main() {
 		},
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
 		OnStartup: func(ctx context.Context) {
+			logger.SetupLogger(ctx)
+
+			// initialize
 			system.Init(ctx)
 			store.Init(ctx)
 			hub.Init(ctx)

@@ -1,4 +1,4 @@
-package store
+package service
 
 import (
 	"context"
@@ -6,7 +6,6 @@ import (
 	"sync"
 	"tapi/desktop/logger"
 	"tapi/desktop/model"
-	"tapi/desktop/service"
 	"tapi/desktop/storage"
 )
 
@@ -32,10 +31,15 @@ func Store() *storeSvc {
 }
 
 func (c *storeSvc) Init(ctx context.Context) {
+	logger.Info("===========================> local storage init")
 	c.ctx = ctx
-	rootDir := service.System().GetRootDir()
-	dataDir := filepath.Join(rootDir, service.System().Preference.Get().Data.DataDir)
+	rootDir := System().GetRootDir()
+	dataDir := filepath.Join(rootDir, System().Preference.Get().Data.DataDir)
 	db := storage.NewLocalStore(dataDir)
+	err := db.Open()
+	if err != nil {
+		logger.Fatal(err)
+	}
 	c.db = db
 }
 

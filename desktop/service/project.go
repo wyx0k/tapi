@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"sync"
-	"tapi/desktop/service/store"
 )
 
 type projectSvc struct{}
@@ -19,7 +18,6 @@ func Project() *projectSvc {
 }
 
 func (c *projectSvc) Init(ctx context.Context) {
-	store.Store().db
 
 }
 func (c *projectSvc) Close() {

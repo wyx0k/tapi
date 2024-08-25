@@ -28,6 +28,7 @@ func System() *systemSvc {
 }
 
 func (c *systemSvc) Init(ctx context.Context) {
+	logger.Info("===========================> system init")
 	dir, err := os.Getwd()
 	if err != nil {
 		c.rootDir = "tapi"
@@ -43,11 +44,11 @@ func (c *systemSvc) Init(ctx context.Context) {
 	if err = utils.CheckOrCreateDir(filepath.Join(c.rootDir, "settings")); err != nil {
 		logger.Fatal(ctx, "can not create setting directory at tapi")
 	}
-	c.Preference, err = storage.NewFileStore(filepath.Join(c.rootDir, "settings", "preference.toml"), &model.Preference{})
+	c.Preference, err = storage.NewFileStore(filepath.Join(c.rootDir, "settings", "preference.json"), &model.Preference{})
 	if err != nil {
 		logger.Fatal(ctx, "can not read settings file at tapi: %v", err)
 	}
-	c.UIState, err = storage.NewFileStore(filepath.Join(c.rootDir, "settings", "ui-state.toml"), &model.AppUIState{})
+	c.UIState, err = storage.NewFileStore(filepath.Join(c.rootDir, "settings", "ui-state.json"), &model.AppUIState{})
 	if err != nil {
 		logger.Fatal(ctx, "can not read settings file at tapi: %v", err)
 	}

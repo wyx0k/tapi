@@ -7,63 +7,68 @@ import (
 )
 
 var DefaultLogger = logger{}
+var _ctx context.Context
+
+func SetupLogger(ctx context.Context) {
+	_ctx = ctx
+}
 
 type logger struct {
 }
 
 func (l logger) Errorf(s string, i ...interface{}) {
-	runtime.LogErrorf(context.Background(), s, i...)
+	runtime.LogErrorf(_ctx, s, i...)
 }
 
 func (l logger) Warningf(s string, i ...interface{}) {
-	runtime.LogWarningf(context.Background(), s, i...)
+	runtime.LogWarningf(_ctx, s, i...)
 }
 
 func (l logger) Infof(s string, i ...interface{}) {
-	runtime.LogInfof(context.Background(), s, i...)
+	runtime.LogInfof(_ctx, s, i...)
 }
 
 func (l logger) Debugf(s string, i ...interface{}) {
-	runtime.LogDebugf(context.Background(), s, i...)
+	runtime.LogDebugf(_ctx, s, i...)
 }
 
 // funcs begin-------------------------------------------
 func Fatal(i ...interface{}) {
-	runtime.LogFatal(context.Background(), fmt.Sprint(i...))
+	runtime.LogFatal(_ctx, fmt.Sprint(i...))
 }
 
 func Error(i ...interface{}) {
-	runtime.LogError(context.Background(), fmt.Sprint(i...))
+	runtime.LogError(_ctx, fmt.Sprint(i...))
 }
 
 func Warning(i ...interface{}) {
-	runtime.LogWarning(context.Background(), fmt.Sprint(i...))
+	runtime.LogWarning(_ctx, fmt.Sprint(i...))
 }
 
 func Info(i ...interface{}) {
-	runtime.LogInfo(context.Background(), fmt.Sprint(i...))
+	runtime.LogInfo(_ctx, fmt.Sprint(i...))
 }
 
 func Debug(i ...interface{}) {
-	runtime.LogDebug(context.Background(), fmt.Sprint(i...))
+	runtime.LogDebug(_ctx, fmt.Sprint(i...))
 }
 
 func Fatalf(s string, i ...interface{}) {
-	runtime.LogFatalf(context.Background(), s, i...)
+	runtime.LogFatalf(_ctx, s, i...)
 }
 
 func Errorf(s string, i ...interface{}) {
-	runtime.LogErrorf(context.Background(), s, i...)
+	runtime.LogErrorf(_ctx, s, i...)
 }
 
 func Warningf(s string, i ...interface{}) {
-	runtime.LogWarningf(context.Background(), s, i...)
+	runtime.LogWarningf(_ctx, s, i...)
 }
 
 func Infof(s string, i ...interface{}) {
-	runtime.LogInfof(context.Background(), s, i...)
+	runtime.LogInfof(_ctx, s, i...)
 }
 
 func Debugf(s string, i ...interface{}) {
-	runtime.LogDebugf(context.Background(), s, i...)
+	runtime.LogDebugf(_ctx, s, i...)
 }
