@@ -1,8 +1,10 @@
 <script setup>
-import {NSplit,NInput,NTabs,NTab} from "naive-ui";
+import {NSplit,NInput} from "naive-ui";
 import { useI18n } from 'vue-i18n'
 import {ref} from "vue";
 import {VueDraggable} from "vue-draggable-plus";
+import "../../common/TTabs.vue"
+import TTabs from "../../common/TTabs.vue";
 const i18n=useI18n()
 
 const data = [
@@ -88,13 +90,7 @@ const list = ref([
 
     </template>
     <template #2>
-      <VueDraggable v-model="list" :animation="150" target=".n-tabs-wrapper">
-        <n-tabs type="card" closable>
-            <n-tab v-for="item in list" :key="item.id" >
-              {{ item.name }}
-            </n-tab>
-        </n-tabs>
-      </VueDraggable>
+      <t-tabs :items="list"></t-tabs>
       <router-view></router-view>
     </template>
   </n-split>
