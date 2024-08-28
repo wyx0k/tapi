@@ -10,7 +10,7 @@ const rootPath = new URL('.', import.meta.url).pathname
 export default defineConfig({
   plugins: [
       createSvgIconsPlugin({
-          iconDirs: [path.resolve(process.cwd(), 'src/icons')],
+          iconDirs: [path.resolve(process.cwd(), 'src/assets/icons')],
           symbolId: 'icon-[name]',
       }),
       vue(),
