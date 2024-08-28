@@ -77,7 +77,7 @@ const handleWheel = (event) => {
           <div v-for="item in tabsArr" :key="item" :class="['t-tab', { 't-tab-active': isSelected(item) }]" @click="switchTab(item)">{{ item.name }}</div>
         </VueDraggable>
       </div>
-    <div class="t-tab-overflow-select">V</div>
+    <div class="t-tab-overflow-select">  V</div>
   </div>
 </template>
 

@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "lodash": "^4.17.21",
+    "path": "^0.12.7",
     "pinia": "^2.1.7",
     "vue": "^3.2.37",
     "vue-draggable-plus": "^0.5.3",
@@ -18,9 +19,11 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^3.0.3",
+    "fast-glob": "^3.3.2",
     "naive-ui": "^2.38.2",
     "unplugin-vue-components": "^0.27.4",
     "vfonts": "^0.0.3",
-    "vite": "^3.0.7"
+    "vite": "^3.0.7",
+    "vite-plugin-svg-icons": "^2.0.1"
   }
 }
