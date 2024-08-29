@@ -1,10 +1,9 @@
 <script setup>
-import TIcon from '@/components/common/TIcon.vue';
 </script>
 
 <template>
   <div>
-    <t-icon name="api"/>
+    choose
   </div>
 </template>
 
