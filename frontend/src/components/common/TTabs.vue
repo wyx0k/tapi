@@ -1,6 +1,6 @@
 <script setup>
 import {VueDraggable} from "vue-draggable-plus";
-import {ref, watch} from "vue";
+import {computed, nextTick, reactive, ref, watch, watchEffect} from "vue";
 
 const props = defineProps({
   items: {
@@ -26,23 +26,32 @@ const tabsArr = ref(props.items)
 const tab = ref(props.activeItem)
 watch(()=>props.activeItem,
     (newValue, oldValue) => {
-        chooseTab(tab.value)
+        changeCurrentTab(tab.value)
       },
     { deep: false })
 
 
-const emits = defineEmits(['closeTab','moveItem','switchTab']);
-const chooseTab = (item)=>{
+const emits = defineEmits(['changeCurrentTab','moveItem','chooseTab']);
+
+// refs
+const scrollableContainer = ref(null);
+const tabs = ref([]);
+
+// tab btn
+const changeCurrentTab = (item)=>{
+  console.log("change tab")
   tab.value=item
 }
-const switchTab =  (item)=>{
-  chooseTab(item)
-  emits('switchTab',item)
+const chooseTab =  (item)=>{
+  console.log("choose tab")
+  changeCurrentTab(item)
+  emits('chooseTab',item)
 }
 const closeTab =  (item)=>{
   emits('closeTab',item)
 }
-const onEnd = (e)=>{
+const onChange = (e)=>{
+  Object.assign(tabs.value,scrollableContainer.value.querySelectorAll('.t-tab'))
   emits('moveItem',tabsArr.value)
 }
 const isSelected=(t)=>{
@@ -55,8 +64,9 @@ const isSelected=(t)=>{
 
   return false
 }
+
+
 // scroll
-const scrollableContainer = ref(null);
 const handleWheel = (event) => {
   event.preventDefault();
   const container = scrollableContainer.value;
@@ -84,13 +94,53 @@ const isHovered = (item)=>{
   }
   return false
 }
+// hiding tabs
+const hidingTabs = reactive([])
+
+const showHidingTabs=()=>{
+
+  const rect = scrollableContainer.value.getBoundingClientRect();
+  let options = []
+  tabs.value.forEach((tab,index) => {
+    const tabRect = tab.getBoundingClientRect();
+    if (tabRect.right>(rect.right+2)||tabRect.left<rect.left){
+      let item = tabsArr.value[index]
+      options.push({
+        label: item.name,
+        key: item
+      })
+    }
+  });
+  Object.assign(hidingTabs,options)
+
+}
+
+const handleSelectHidingTab = (item)=>{
+  tabsArr.value.forEach((tab,index) => {
+    if (tab.type ===item.type&&tab.id===item.id){
+      const targetRect = tabs.value[index].getBoundingClientRect()
+      scrollableContainer.value.scrollLeft=targetRect.width*index
+    }
+  })
+  chooseTab(item)
+}
+
+// tabs operatioin
+
+const operationList = []
+const handleSelectOperation=(item)=>{
+  console.log(item)
+}
 </script>
 
 <template>
   <div class="t-tab-wrapper">
       <div class="t-tabs-scroll"  @wheel="handleWheel"  ref="scrollableContainer">
-        <VueDraggable v-model="tabsArr" :animation="150" class="t-tabs"  @end="onEnd">
-          <div v-for="item in tabsArr" :key="item" :class="['t-tab', { 't-tab-active': isSelected(item) }]" @click="switchTab(item)" @mouseenter="showClose(item)" @mouseleave="hideClose">
+        <VueDraggable v-model="tabsArr" :animation="150" class="t-tabs"  @change="onChange">
+          <div v-for="item in tabsArr" :key="item" :class="['t-tab', { 't-tab-active': isSelected(item) }]"
+               @click="chooseTab(item)" @mouseenter="showClose(item)" @mouseleave="hideClose"
+               ref="tabs"
+          >
             <n-ellipsis style="max-width: 165px" :tooltip="{placement:'bottom'}">
               {{ item.name }}
             </n-ellipsis>
@@ -106,10 +156,10 @@ const isHovered = (item)=>{
           placement="bottom-start"
           trigger="click"
           size="small"
-          :options="options"
-          @select="handleSelect"
+          :options="hidingTabs"
+          @select="handleSelectHidingTab"
       >
-        <n-button quaternary  size="tiny" class="t-tab-overflow-select-item">
+        <n-button quaternary  size="tiny" class="t-tab-overflow-select-item" @click="showHidingTabs">
           <t-icon name="dropdown" width="20px" height="20px"/>
         </n-button>
       </n-dropdown>
@@ -117,8 +167,8 @@ const isHovered = (item)=>{
           placement="bottom-start"
           trigger="click"
           size="small"
-          :options="options"
-          @select="handleSelect"
+          :options="operationList"
+          @select="handleSelectOperation"
       >
       <n-button quaternary  size="tiny" class="t-tab-overflow-select-item">
         <t-icon name="more-operation" width="20px" height="20px"/>

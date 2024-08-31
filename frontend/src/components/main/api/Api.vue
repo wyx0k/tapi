@@ -56,18 +56,22 @@ const data = [
 const pattern = ref('')
 const list = ref([
   {
+    type:'request',
     name: 'Joao',
     id: 1
   },
   {
+    type:'request',
     name: 'Jean',
     id: 2
   },
   {
+    type:'request',
     name: 'Johannaxxxxxxxxxxxxxxxxxxxxxxxxxx',
     id: 3
   },
   {
+    type:'request',
     name: 'Juan',
     id: 4
   }
