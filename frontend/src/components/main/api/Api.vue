@@ -1,9 +1,7 @@
 <script setup>
 import {NSplit,NInput} from "naive-ui";
 import { useI18n } from 'vue-i18n'
-import {ref} from "vue";
-import {VueDraggable} from "vue-draggable-plus";
-import "../../common/TTabs.vue"
+import {ref, watch, watchEffect} from "vue";
 import TTabs from "../../common/TTabs.vue";
 const i18n=useI18n()
 
@@ -54,28 +52,62 @@ const data = [
   }
 ]
 const pattern = ref('')
-const list = ref([
+
+// init data
+const tabs = ref([
   {
-    type:'request',
-    name: 'Joao',
+    type:'collection',
+    name: 'Joaoxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
     id: 1
   },
   {
     type:'request',
-    name: 'Jean',
+    method:'HEAD',
+    name: 'Jeanxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
     id: 2
   },
   {
     type:'request',
+    method:'GET',
     name: 'Johannaxxxxxxxxxxxxxxxxxxxxxxxxxx',
     id: 3
   },
   {
     type:'request',
-    name: 'Juan',
+    method:'DELETE',
+    name: 'Ashlyxxxxxxxxxxxxxxxxxxxx',
     id: 4
+  },
+  {
+    type:'request',
+    method:'POST',
+    name: 'Ashlyxxxxxxxxxxxxxxxxxxxx',
+    id: 5
   }
 ])
+const currentTab = ref(null)
+let currentTabScrollLeft = 0
+
+// handle tab events
+const moveTab = (e)=>{
+
+}
+const chooseTab = (e)=>{
+
+}
+const closeTab = (e)=>{
+
+}
+const closeAllTabs = (e)=>{
+
+}
+const closeOtherTabs = (e)=>{
+
+}
+const saveAllTabs = (e)=>{
+
+}
+
 </script>
 
 <template>
@@ -94,7 +126,17 @@ const list = ref([
 
     </template>
     <template #2>
-      <t-tabs :items="list"></t-tabs>
+      <t-tabs
+          :items="tabs"
+          :active-tab="currentTab"
+          v-model:tab-scroll-left="currentTabScrollLeft"
+          @choose-tab="chooseTab"
+          @close-tab=""
+          @move-tab=""
+          @close-all-tabs=""
+          @close-other-tabs=""
+          @save-all-tabs=""
+      ></t-tabs>
       <router-view></router-view>
     </template>
   </n-split>

@@ -13,7 +13,7 @@ const dateLocale = dateZhCN
 <template>
   <n-config-provider :theme="theme" :locale="locale" :date-locale="dateLocale">
 <!--    <n-card> 当前操作系统的主题是 {{ osTheme }}。 </n-card>-->
-    <layout></layout>
+    <layout v-no-ctx-menu></layout>
   </n-config-provider>
 </template>
 

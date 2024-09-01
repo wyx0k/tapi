@@ -1,0 +1,17 @@
+{
+  "name": "简体中文",
+  "preference": {
+    "name": "偏好设置"
+  },
+  "tabs": {
+    "tab-ctx-menu": {
+      "close": "Close",
+      "close-all": "Close All Tabs",
+      "close-others": "Close Other Tabs"
+    },
+    "operation": {
+      "close-all": "Close All Tabs",
+      "save-all": "Save All"
+    }
+  }
+}

@@ -17,20 +17,6 @@ type PreferencesData struct {
 type PreferencesHub struct {
 	HubAddress string `json:"hub_address"`
 }
-type TabType string
-
-const (
-	RequestTab     TabType = "request"
-	CollectionTab  TabType = "request"
-	EnvironmentTab TabType = "request"
-)
-
-type Tab struct {
-	Name         string  `json:"name"`
-	Idx          int     `json:"idx"`
-	Type         TabType `json:"type"`
-	TabContentId uint64  `json:"id"`
-}
 
 type AppUIState struct {
 	CurrentProjectId uint64 `json:"current_project_id,omitempty"`

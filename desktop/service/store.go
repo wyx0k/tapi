@@ -49,3 +49,11 @@ func (c *storeSvc) Close() {
 		logger.Error(err)
 	}
 }
+
+func (c *storeSvc) Get(ctx context.Context, key []byte, val storage.Storable, inNamespace ...bool) error {
+	return c.db.Get(ctx, key, val, inNamespace...)
+}
+
+func (c *storeSvc) Set(ctx context.Context, key []byte, val storage.Storable, inNamespace ...bool) error {
+	return c.db.Set(ctx, key, val, inNamespace...)
+}

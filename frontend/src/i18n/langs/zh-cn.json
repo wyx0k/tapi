@@ -2,5 +2,16 @@
   "name": "简体中文",
   "preference": {
     "name": "偏好设置"
+  },
+  "tabs": {
+    "tab-ctx-menu": {
+      "close": "关闭",
+      "close-all": "关闭全部标签页",
+      "close-others": "关闭其他标签页"
+    },
+    "operation": {
+      "close-all": "关闭全部标签页",
+      "save-all": "保存全部标签页"
+    }
   }
 }

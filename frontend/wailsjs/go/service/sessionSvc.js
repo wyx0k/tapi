@@ -6,6 +6,14 @@ export function Close() {
   return window['go']['service']['sessionSvc']['Close']();
 }
 
+export function GetTabSession() {
+  return window['go']['service']['sessionSvc']['GetTabSession']();
+}
+
 export function Init(arg1) {
   return window['go']['service']['sessionSvc']['Init'](arg1);
+}
+
+export function SetTabSession(arg1) {
+  return window['go']['service']['sessionSvc']['SetTabSession'](arg1);
 }

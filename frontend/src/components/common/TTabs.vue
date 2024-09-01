@@ -1,6 +1,8 @@
 <script setup>
 import {VueDraggable} from "vue-draggable-plus";
-import {computed, nextTick, reactive, ref, watch, watchEffect} from "vue";
+import {computed, nextTick, onMounted, reactive, ref, watch, watchEffect} from "vue";
+import { useI18n } from 'vue-i18n'
+
 
 const props = defineProps({
   items: {
@@ -13,46 +15,54 @@ const props = defineProps({
     },
     required: true
   },
-  activeItem:{
+  activeTab:{
     type: Object,
     default: () => {},
     validator(value) {
       return typeof value === 'object' && 'id' in value && 'type' in value;
     }
+  },
+  tabScrollLeft:{
+    type: Number,
+    default: () => 0
   }
 
 });
 const tabsArr = ref(props.items)
-const tab = ref(props.activeItem)
-watch(()=>props.activeItem,
+const tab = ref(props.activeTab)
+const scrollLeft = ref(props.tabScrollLeft)
+watch(()=>props.activeTab,
     (newValue, oldValue) => {
         changeCurrentTab(tab.value)
       },
-    { deep: false })
+    { deep: false }
+)
 
 
-const emits = defineEmits(['changeCurrentTab','moveItem','chooseTab']);
+const emits = defineEmits(['moveTab','chooseTab','closeTab','closeOtherTabs','closeAllTabs','saveAllTabs','update:tabScrollLeft']);
 
+// i18n
+const i18n = useI18n()
 // refs
 const scrollableContainer = ref(null);
 const tabs = ref([]);
 
 // tab btn
 const changeCurrentTab = (item)=>{
-  console.log("change tab")
   tab.value=item
 }
-const chooseTab =  (item)=>{
-  console.log("choose tab")
+
+const chooseTab = (item)=>{
   changeCurrentTab(item)
   emits('chooseTab',item)
 }
-const closeTab =  (item)=>{
+const closeTab =  (e,item)=>{
+  e.stopPropagation()
   emits('closeTab',item)
 }
 const onChange = (e)=>{
   Object.assign(tabs.value,scrollableContainer.value.querySelectorAll('.t-tab'))
-  emits('moveItem',tabsArr.value)
+  emits('moveTab',tabsArr.value)
 }
 const isSelected=(t)=>{
   let cur= tab.value
@@ -74,6 +84,7 @@ const handleWheel = (event) => {
     let newScrollLeft = container.scrollLeft + event.deltaY;
     if (!isNaN(newScrollLeft)) {
       container.scrollLeft = newScrollLeft;
+      emits('update:tabScrollLeft',newScrollLeft)
     }
   }
 };
@@ -96,13 +107,15 @@ const isHovered = (item)=>{
 }
 // hiding tabs
 const hidingTabs = reactive([])
-
+const IsShowHidingTabsBtn = computed(() => hidingTabs.length > 0);
 const showHidingTabs=()=>{
-
-  const rect = scrollableContainer.value.getBoundingClientRect();
+  if (!scrollableContainer.value){
+    return
+  }
+  const rect = scrollableContainer.value.getBoundingClientRect()
   let options = []
   tabs.value.forEach((tab,index) => {
-    const tabRect = tab.getBoundingClientRect();
+    const tabRect = tab.getBoundingClientRect()
     if (tabRect.right>(rect.right+2)||tabRect.left<rect.left){
       let item = tabsArr.value[index]
       options.push({
@@ -111,8 +124,8 @@ const showHidingTabs=()=>{
       })
     }
   });
-  Object.assign(hidingTabs,options)
-
+  hidingTabs.length = 0;
+  hidingTabs.push(...options);
 }
 
 const handleSelectHidingTab = (item)=>{
@@ -127,9 +140,118 @@ const handleSelectHidingTab = (item)=>{
 
 // tabs operatioin
 
-const operationList = []
-const handleSelectOperation=(item)=>{
-  console.log(item)
+const operationList = [
+  {
+    label: i18n.t("tabs.operation.close-all"),
+    key: "tabs.operation.close-all",
+  },
+  {
+    label: i18n.t("tabs.operation.save-all"),
+    key: "tabs.operation.save-all",
+  },
+]
+const handleSelectOperation=(key)=>{
+  switch (key){
+    case "tabs.operation.close-all":
+      emits('closeAllTabs')
+          break
+    case "tabs.operation.save-all":
+      emits('saveAllTabs')
+          break
+  }
+}
+
+// on mounted
+const handleResize = () => {
+  showHidingTabs()
+};
+onMounted(()=>{
+  window.addEventListener('resize', handleResize);
+  const container = scrollableContainer.value;
+  if (!isNaN(scrollLeft.value)) {
+    container.scrollLeft = scrollLeft.value;
+  }
+  showHidingTabs()
+})
+
+// ctx-menu
+const showTabMenuRef =  ref(false)
+const showTabMenuXRef = ref(0)
+const showTabMenuYRef = ref(0)
+let tabRightClickChoose = ref(null)
+const onTabRightClick=(e,item)=>{
+  e.preventDefault()
+  tabRightClickChoose.value=item
+  showTabMenuRef.value = false
+  nextTick().then(() => {
+    showTabMenuRef.value = true
+    showTabMenuXRef.value = e.clientX
+    showTabMenuYRef.value = e.clientY
+  })
+}
+const onTabRightMenuClickOutside=()=>{
+  showTabMenuRef.value = false
+  tabRightClickChoose.value=null
+}
+
+const tabCtxMenu = [
+  {
+    label: i18n.t("tabs.tab-ctx-menu.close"),
+    key: "tabs.tab-ctx-menu.close",
+  },
+  {
+    label: i18n.t("tabs.tab-ctx-menu.close-all"),
+    key: "tabs.tab-ctx-menu.close-all",
+  },
+  {
+    label: i18n.t("tabs.tab-ctx-menu.close-others"),
+    key: "tabs.tab-ctx-menu.close-others",
+  }
+]
+
+const onTabRightMenuSelect=(key)=>{
+  showTabMenuRef.value = false
+  switch (key){
+    case "tabs.tab-ctx-menu.close":
+      emits('closeTab',[tabRightClickChoose.value])
+      break
+    case "tabs.tab-ctx-menu.close-all":
+      emits('closeAllTabs')
+      break
+    case "tabs.tab-ctx-menu.close-others":
+      emits('closeOtherTabs',[tabRightClickChoose.value])
+      break
+  }
+}
+
+// method icon
+const methodIcon = (m)=>{
+  switch (m){
+    case "GET":
+      return "method-get"
+    case "POST":
+      return "method-post"
+    case "PUT":
+      return "method-put"
+    case "DELETE":
+      return "method-delete"
+    default:
+      return "method-other"
+  }
+}
+const methodIconEllipsisWidth= (m)=>{
+  switch (m){
+    case "GET":
+      return "max-width: 135px"
+    case "POST":
+      return "max-width: 130px"
+    case "PUT":
+      return "max-width: 135px"
+    case "DELETE":
+      return "max-width: 125px"
+    default:
+      return "max-width: 135px"
+  }
 }
 </script>
 
@@ -140,11 +262,19 @@ const handleSelectOperation=(item)=>{
           <div v-for="item in tabsArr" :key="item" :class="['t-tab', { 't-tab-active': isSelected(item) }]"
                @click="chooseTab(item)" @mouseenter="showClose(item)" @mouseleave="hideClose"
                ref="tabs"
+               @contextmenu.prevent="onTabRightClick($event,item)"
+               @mousedown="onTabRightMenuClickOutside"
           >
-            <n-ellipsis style="max-width: 165px" :tooltip="{placement:'bottom'}">
+
+            <n-ellipsis style="max-width: 176px" :tooltip="{placement:'bottom'}">
+              <t-icon name="collection" width="1em" height="1em" v-if="item.type==='collection'" style="margin-right: 6px;margin-left: 10px"/>
+              <span v-else style="margin-right: 6px;margin-left: 10px">
+              <span v-if="item.method&&item.method.length>0" :class="['method',methodIcon(item.method)]" >{{item.method}}</span>
+               <t-icon name="request" width="1em" height="1em" v-else />
+            </span>
               {{ item.name }}
             </n-ellipsis>
-              <n-button quaternary circle class="t-tab-close" size="tiny" v-show="isHovered(item)">
+              <n-button quaternary circle class="t-tab-close" size="tiny" v-show="isHovered(item)" @click="closeTab($event,item)">
                 <t-icon name="close" width="16px" height="16px"/>
               </n-button>
             <div class="t-tab-selected-sign"></div>
@@ -156,8 +286,10 @@ const handleSelectOperation=(item)=>{
           placement="bottom-start"
           trigger="click"
           size="small"
+          v-if="IsShowHidingTabsBtn"
           :options="hidingTabs"
           @select="handleSelectHidingTab"
+          style="text-align: left"
       >
         <n-button quaternary  size="tiny" class="t-tab-overflow-select-item" @click="showHidingTabs">
           <t-icon name="dropdown" width="20px" height="20px"/>
@@ -175,6 +307,18 @@ const handleSelectOperation=(item)=>{
       </n-button>
       </n-dropdown>
     </div>
+<!--  ctx menu  -->
+    <n-dropdown
+        placement="bottom-start"
+        trigger="manual"
+        style="text-align: left"
+        :x="showTabMenuXRef"
+        :y="showTabMenuYRef"
+        :options="tabCtxMenu"
+        :show="showTabMenuRef"
+        :on-clickoutside="onTabRightMenuClickOutside"
+        @select="onTabRightMenuSelect"
+    />
   </div>
 </template>
 
@@ -209,6 +353,7 @@ const handleSelectOperation=(item)=>{
   border-right: rgb(239, 239, 245) solid 1px;
   border-left:  rgb(239, 239, 245) solid 1px;
   cursor: pointer;
+  text-align: left;
 }
 .t-tab-active{
 }
@@ -242,6 +387,26 @@ const handleSelectOperation=(item)=>{
   right: 6px;
   top:6px
 }
+.method{
+  font-size: 0.8em;
+  font-weight: bold;
+}
 
+.method-get{
+  color: #7eb65e;
+}
+.method-post{
+  color: #db9b4b;
+}
+.method-put{
+  color: #6274e1;
+}
+.method-delete{
+  color: rgba(216, 55, 55, 0.82);
+}
+
+.method-other{
+  color: #909090;
+}
 
 </style>

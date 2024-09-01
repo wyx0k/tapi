@@ -12,6 +12,8 @@ SchemaVersion v1
 
 v1
 |___session
+	|___tab_session
+	|___
 |___namespaces
 	|___{ns_id}
 		|___ns_id

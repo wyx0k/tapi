@@ -3,6 +3,7 @@ package storage
 import (
 	"bytes"
 	"context"
+	"errors"
 	"github.com/dgraph-io/badger/v4"
 	"tapi/desktop/logger"
 	"tapi/desktop/ns"
@@ -39,8 +40,8 @@ func (s *LocalStore) Close() error {
 	return s.db.Close()
 }
 
-func (s *LocalStore) Set(ctx context.Context, key []byte, val Storable) error {
-	k, err := buildKey(ctx, key)
+func (s *LocalStore) Set(ctx context.Context, key []byte, val Storable, inNamespace ...bool) error {
+	k, err := buildKey(ctx, key, inNamespace...)
 	if err != nil {
 		return err
 	}
@@ -50,8 +51,8 @@ func (s *LocalStore) Set(ctx context.Context, key []byte, val Storable) error {
 	})
 }
 
-func (s *LocalStore) Get(ctx context.Context, key []byte, obj Storable) error {
-	k, err := buildKey(ctx, key)
+func (s *LocalStore) Get(ctx context.Context, key []byte, obj Storable, inNamespace ...bool) error {
+	k, err := buildKey(ctx, key, inNamespace...)
 	if err != nil {
 		return err
 	}
@@ -59,6 +60,9 @@ func (s *LocalStore) Get(ctx context.Context, key []byte, obj Storable) error {
 
 		item, err2 := txn.Get(k)
 		if err2 != nil {
+			if errors.Is(err2, badger.ErrKeyNotFound) {
+				return nil
+			}
 			return err2
 		}
 		return item.Value(func(val []byte) error {
@@ -67,12 +71,22 @@ func (s *LocalStore) Get(ctx context.Context, key []byte, obj Storable) error {
 	})
 }
 
-func buildKey(ctx context.Context, key []byte) ([]byte, error) {
-	ns, err := ns.NamespaceMust(ctx)
-	if err != nil {
-		return []byte("."), err
+func buildKey(ctx context.Context, key []byte, inNamespace ...bool) ([]byte, error) {
+	needNamespace := true
+	if len(inNamespace) > 0 {
+		needNamespace = inNamespace[0]
 	}
-	keys := [][]byte{keyVersion, keyNamespaces, []byte(ns)}
+	var keys [][]byte
+	if needNamespace {
+		ns, err := ns.NamespaceMust(ctx)
+		if err != nil {
+			return []byte("."), err
+		}
+		keys = [][]byte{keyVersion, keyNamespaces, []byte(ns)}
+	} else {
+		keys = [][]byte{keyVersion}
+	}
+
 	b := bytes.Join(keys, keySep)
 	return append(b, key...), nil
 }
