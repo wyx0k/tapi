@@ -1,10 +1,11 @@
 <script setup>
-import {NSplit,NInput} from "naive-ui";
+import {NSplit,NInput,useMessage} from "naive-ui";
 import { useI18n } from 'vue-i18n'
-import {ref, watch, watchEffect} from "vue";
+import {onMounted, ref, watch, watchEffect} from "vue";
 import TTabs from "../../common/TTabs.vue";
+import useSessionStore from "stores/session.js";
 const i18n=useI18n()
-
+const sessionStore=useSessionStore()
 const data = [
   {
     label: '0',
@@ -52,48 +53,21 @@ const data = [
   }
 ]
 const pattern = ref('')
-
+const message = useMessage()
 // init data
-const tabs = ref([
-  {
-    type:'collection',
-    name: 'Joaoxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-    id: 1
-  },
-  {
-    type:'request',
-    method:'HEAD',
-    name: 'Jeanxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-    id: 2
-  },
-  {
-    type:'request',
-    method:'GET',
-    name: 'Johannaxxxxxxxxxxxxxxxxxxxxxxxxxx',
-    id: 3
-  },
-  {
-    type:'request',
-    method:'DELETE',
-    name: 'Ashlyxxxxxxxxxxxxxxxxxxxx',
-    id: 4
-  },
-  {
-    type:'request',
-    method:'POST',
-    name: 'Ashlyxxxxxxxxxxxxxxxxxxxx',
-    id: 5
-  }
-])
-const currentTab = ref(null)
-let currentTabScrollLeft = 0
+
+
+let currentTabScrollLeft = sessionStore.getTabScrollLeft
 
 // handle tab events
 const moveTab = (e)=>{
 
 }
-const chooseTab = (e)=>{
 
+const  chooseTab = async (item)=>{
+  console.log("1111")
+  await sessionStore.saveTabSessionPositions(item,currentTabScrollLeft)
+  console.log("2222")
 }
 const closeTab = (e)=>{
 
@@ -107,7 +81,20 @@ const closeOtherTabs = (e)=>{
 const saveAllTabs = (e)=>{
 
 }
+const addRequest = async ()=>{
+  console.log("add request")
+  await sessionStore.addRequestTab()
+  console.log(sessionStore.getTabs)
 
+}
+// mounted
+onMounted(async ()=>{
+ const {success,msg} = await sessionStore.loadTabSession()
+  if (!success){
+    message.warning(msg)
+  }
+
+})
 </script>
 
 <template>
@@ -127,8 +114,8 @@ const saveAllTabs = (e)=>{
     </template>
     <template #2>
       <t-tabs
-          :items="tabs"
-          :active-tab="currentTab"
+          :items="sessionStore.getTabs"
+          :active-tab="sessionStore.getCurrentTab"
           v-model:tab-scroll-left="currentTabScrollLeft"
           @choose-tab="chooseTab"
           @close-tab=""
@@ -136,6 +123,7 @@ const saveAllTabs = (e)=>{
           @close-all-tabs=""
           @close-other-tabs=""
           @save-all-tabs=""
+          @add-request="addRequest"
       ></t-tabs>
       <router-view></router-view>
     </template>

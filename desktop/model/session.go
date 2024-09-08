@@ -7,6 +7,9 @@ type Session struct {
 }
 
 func (s *Session) Marshal() []byte {
+	if s == nil {
+		return nil
+	}
 	bytes, _ := json.Marshal(s)
 	return bytes
 }
@@ -28,7 +31,9 @@ const (
 )
 
 type Tab struct {
-	Type TabType `json:"type"`
-	Name string  `json:"name"`
-	Id   int     `json:"id"`
+	Type   TabType `json:"type"`
+	Name   string  `json:"name"`
+	Id     int     `json:"id"`
+	Method string  `json:"method"`
+	Saved  bool    `json:"saved"`
 }

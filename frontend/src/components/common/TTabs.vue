@@ -33,13 +33,17 @@ const tab = ref(props.activeTab)
 const scrollLeft = ref(props.tabScrollLeft)
 watch(()=>props.activeTab,
     (newValue, oldValue) => {
+  console.log(newValue)
         changeCurrentTab(tab.value)
       },
     { deep: false }
 )
+watch(()=>props.items,(n,o)=>{
+  Object.assign(tabsArr.value,n)
+},{deep:true})
 
-
-const emits = defineEmits(['moveTab','chooseTab','closeTab','closeOtherTabs','closeAllTabs','saveAllTabs','update:tabScrollLeft']);
+const emits = defineEmits(['moveTab','chooseTab','closeTab','closeOtherTabs',
+  'closeAllTabs','saveAllTabs','update:tabScrollLeft','addRequest']);
 
 // i18n
 const i18n = useI18n()
@@ -148,6 +152,9 @@ const operationList = [
   {
     label: i18n.t("tabs.operation.save-all"),
     key: "tabs.operation.save-all",
+  },  {
+    label: i18n.t("tabs.operation.add"),
+    key: "tabs.operation.add",
   },
 ]
 const handleSelectOperation=(key)=>{
@@ -157,6 +164,8 @@ const handleSelectOperation=(key)=>{
           break
     case "tabs.operation.save-all":
       emits('saveAllTabs')
+    case "tabs.operation.add":
+      emits('addRequest')
           break
   }
 }
@@ -239,20 +248,7 @@ const methodIcon = (m)=>{
       return "method-other"
   }
 }
-const methodIconEllipsisWidth= (m)=>{
-  switch (m){
-    case "GET":
-      return "max-width: 135px"
-    case "POST":
-      return "max-width: 130px"
-    case "PUT":
-      return "max-width: 135px"
-    case "DELETE":
-      return "max-width: 125px"
-    default:
-      return "max-width: 135px"
-  }
-}
+
 </script>
 
 <template>
@@ -324,6 +320,7 @@ const methodIconEllipsisWidth= (m)=>{
 
 <style scoped>
 .t-tab-wrapper{
+  height: 46px;
   display: flex;
   border-bottom: rgb(239, 239, 245) solid 1px;
   /*box-shadow: inset 10px 0 10px -10px rgba(0, 0, 0, 0.3);*/

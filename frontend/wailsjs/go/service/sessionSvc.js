@@ -14,6 +14,10 @@ export function Init(arg1) {
   return window['go']['service']['sessionSvc']['Init'](arg1);
 }
 
-export function SetTabSession(arg1) {
-  return window['go']['service']['sessionSvc']['SetTabSession'](arg1);
+export function SetTabSessionPosition(arg1, arg2) {
+  return window['go']['service']['sessionSvc']['SetTabSessionPosition'](arg1, arg2);
+}
+
+export function SetTabSessionTabs(arg1) {
+  return window['go']['service']['sessionSvc']['SetTabSessionTabs'](arg1);
 }

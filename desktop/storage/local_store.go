@@ -46,6 +46,9 @@ func (s *LocalStore) Set(ctx context.Context, key []byte, val Storable, inNamesp
 		return err
 	}
 	bytes := val.Marshal()
+	if bytes == nil {
+		return nil
+	}
 	return s.db.Update(func(txn *badger.Txn) error {
 		return txn.Set(k, bytes)
 	})
@@ -65,7 +68,11 @@ func (s *LocalStore) Get(ctx context.Context, key []byte, obj Storable, inNamesp
 			}
 			return err2
 		}
+
 		return item.Value(func(val []byte) error {
+			if val == nil {
+				return nil
+			}
 			return obj.Unmarshal(val)
 		})
 	})

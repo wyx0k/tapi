@@ -11,7 +11,8 @@
     },
     "operation": {
       "close-all": "关闭全部标签页",
-      "save-all": "保存全部标签页"
+      "save-all": "保存全部标签页",
+      "add": "添加请求"
     }
   }
 }
